@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+<head> 
+	<title>Oregon Wilderness Areas</title>
+	
+	<meta charset="utf-8" />
+	<link rel="stylesheet" href="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.css" /> <!-- we will us e this as the styling script for our webmap-->
+	<link rel="stylesheet" href="css/MarkerCluster.css" />
+	<link rel="stylesheet" href="css/MarkerCluster.Default.css" />
+	<link rel="stylesheet" type="text/css" href="css/own_style.css">
+	<script src="http://code.jquery.com/jquery-1.11.1.min.js"></script> <!-- this is the javascript file that does the magic-->
+	<script src="js/Autolinker.min.js"></script>
+</head>
+<body>
+	<div id="map"></div> <!-- this is the initial look of the map. in most cases it is done externally using something like a map.css stylesheet were you can specify the look of map elements, like background color tables and so on.-->
+	<script src="http://cdnjs.cloudflare.com/ajax/libs/leaflet/0.7.2/leaflet.js"></script> <!-- this is the javascript file that does the magic-->
+	<script src="js/leaflet.markercluster.js"></script>
+	
+				<script src='data\exp_Combinednoinholding2.js' ></script>
+				
+	<script>
+		var map = L.map('map', { zoomControl:true }).fitBounds([[41.4009700168,-124.814425019],[46.6868465741,-115.876159894]]);
+		var additional_attrib = 'Map created by Andy Zeigert using <a href="https://github.com/geolicious/qgis2leaf" target ="_blank">gis2leaf</a><br>';
+	var feature_group = new L.featureGroup([]);
+
+	var raster_group = new L.LayerGroup([]);
+	
+		map.attributionControl.addAttribution(additional_attrib + 'Map tiles by <a href="http://stamen.com">Stamen Design</a>, <a href="http://creativecommons.org/licenses/by/3.0">CC BY 3.0</a> &mdash; Map data: &copy; <a href="http://openstreetmap.org">OpenStreetMap</a> contributors,<a href="http://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>');
+		var basemap = L.tileLayer('http://a.tile.stamen.com/terrain/{z}/{x}/{y}.png');
+			basemap.addTo(map);	var layerOrder=new Array();
+				function pop_Combinednoinholding2(feature, layer) {
+										var popupContent = '<h2>' + Autolinker.link(String(feature.properties.WLD_NAME)) + '</h2><p><strong>Description: </strong>' + Autolinker.link(String(feature.properties.Descrip)) + '</br><strong>Year designated: </strong>' + Autolinker.link(String(feature.properties.Year)) + '</br><strong>Size: </strong>' + Autolinker.link(String(feature.properties.Size)) + ' acres</br>Managed by ' + Autolinker.link(String(feature.properties.Jurisd)) + '</p>';
+					layer.bindPopup(popupContent);
+
+
+				}
+						
+				var exp_Combinednoinholding2JSON = new L.geoJson(exp_Combinednoinholding2,{
+					onEachFeature: pop_Combinednoinholding2,
+					style: function (feature) {
+						return {color: feature.properties.border_color_qgis2leaf,
+								fillColor: '#db7c35',
+								weight: feature.properties.radius_qgis2leaf,
+								opacity: feature.properties.transp_qgis2leaf,
+								fillOpacity: .5};
+						}
+					});
+				feature_group.addLayer(exp_Combinednoinholding2JSON);
+				layerOrder[layerOrder.length] = exp_Combinednoinholding2JSON;
+				for (index = 0; index < layerOrder.length; index++) {
+					map.removeLayer(layerOrder[index]);map.addLayer(layerOrder[index]);
+				}
+				
+						//add comment sign to hide this layer on the map in the initial view.
+						exp_Combinednoinholding2JSON.addTo(map);
+		var title = new L.Control();
+		title.onAdd = function (map) {
+			this._div = L.DomUtil.create('div', 'info'); // create a div with a class "info"
+			this.update();
+			return this._div;
+	    };
+	    title.update = function () {
+			this._div.innerHTML = '<h2>Oregon Wilderness Areas</h2>Managed by U.S. Forest Service and Bureau of Land Management'
+		};
+		title.addTo(map);
+	L.control.layers({'Stamen Terrain': basemap},{"Wilderness Areas": exp_Combinednoinholding2JSON}).addTo(map);
+	</script>
+</body>
+</html>
+	
